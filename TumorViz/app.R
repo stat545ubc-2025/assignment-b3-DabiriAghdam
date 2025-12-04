@@ -13,7 +13,7 @@ library(shiny)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("TumorViz: Cancer Tumor Explorer"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -27,6 +27,8 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
+          h3("TumorViz"),
+          p("An interactive app to explore cancer tumor characteristics and diagnosis."),
            plotOutput("distPlot")
         )
     )
