@@ -43,7 +43,8 @@ ui <- fluidPage(
       h3("TumorViz"),
       p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant)."),
       plotOutput("scatterPlot"),
-      dataTableOutput("dataTable")
+      dataTableOutput("dataTable"),
+      textOutput("summary")
     )
   )
 )
@@ -83,6 +84,15 @@ server <- function(input, output) {
   # Feature two: Data table
   output$dataTable <- renderDataTable({
     filtered_data()
+  })
+
+  # Summary statistics
+  output$summary <- renderText({
+    data <- filtered_data()
+    malignant_count <- sum(data$diagnosis == "M")
+    benign_count <- sum(data$diagnosis == "B")
+    total_count <- nrow(data)
+    paste("We found", malignant_count, "malignant and", benign_count, "benign tumors ( total", total_count, ")")
   })
 }
 
