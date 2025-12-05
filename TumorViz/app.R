@@ -1,5 +1,6 @@
 library(shiny)
 library(datateachr)
+library(ggplot2)
 
 # Create a cleaner dataset (adapted from mini-data-analysis repository)
 cancer_data <- cancer_sample %>%
@@ -22,23 +23,34 @@ ui <- fluidPage(
   # Application title
   titlePanel("TumorViz: Cancer Tumor Explorer"),
   
-  # Sidebar with a slider input for number of bins 
+  # Sidebar with inputs for variable selection
   sidebarLayout(
     sidebarPanel(
-      
+      selectInput("x_var", "First variable:",
+                  choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
+                  selected = "radius_mean"),
+      selectInput("y_var", "Second variable:",
+                  choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
+                  selected = "texture_mean")
     ),
     
    
     mainPanel(
       h3("TumorViz"),
       p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant)."),
+      plotOutput("scatterPlot")
     )
   )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  
+  output$scatterPlot <- renderPlot({
+    ggplot(cancer_data, aes_string(x = input$x_var, y = input$y_var, color = "diagnosis")) +
+      geom_point() +
+      labs(title = paste("Scatter plot of", input$x_var, "vs", input$y_var),
+           x = input$x_var, y = input$y_var)
+  })
 }
 
 # Run the application 
