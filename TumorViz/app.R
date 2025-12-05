@@ -41,12 +41,12 @@ ui <- fluidPage(
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
                   selected = "area_mean"),
       uiOutput("sliders"),
+      textOutput("summary"),
       checkboxInput("x_log", "Log scale for X-axis", value = FALSE),
       checkboxInput("y_log", "Log scale for Y-axis", value = FALSE),
       colourInput("color_benign", "Benign (B) color:", value = "#00BCD4"),
       colourInput("color_malignant", "Malignant (M) color:", value = "#F8766D"),
       checkboxInput("minimal_theme", "Use minimal theme", value = TRUE),
-      textOutput("summary"),
       checkboxGroupInput("selected_columns", "Columns to display:",
                          choices = c("ID", "diagnosis", "radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio", "texture_mean_category"),
                          selected = c("ID", "diagnosis", "area_mean", "texture_mean_category")),
@@ -57,9 +57,15 @@ ui <- fluidPage(
     mainPanel(
       h3("TumorViz"),
       p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant). Use the sidebar to filter by diagnosis type, select which variables to plot on each axis, apply log transformations if needed, adjust value ranges to focus on specific regions of interest, and customize point colors. The Plot tab displays your customized scatter plot, while the Data Table tab shows the filtered dataset based on your current selections, along with summary statistics. You can also download the filtered data as a PNG/CSV file."),
-      plotOutput("scatterPlot"),
-      downloadButton("downloadPlot", "Download Plot as PNG"),
-      dataTableOutput("dataTable"),
+      tabsetPanel(
+        tabPanel("Plot",
+                 plotOutput("scatterPlot"),
+                 downloadButton("downloadPlot", "Download Plot as PNG"),
+        ),
+        tabPanel("Table",
+                 dataTableOutput("dataTable")
+        )
+      )
     )
   )
 )
