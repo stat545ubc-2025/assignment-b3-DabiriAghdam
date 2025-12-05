@@ -184,7 +184,7 @@ server <- function(input, output, session) {
     malignant_count <- sum(data$diagnosis == "M")
     benign_count <- sum(data$diagnosis == "B")
     total_count <- nrow(data)
-    paste("Found", malignant_count, "malignant and", benign_count, "benign tumors ( total", total_count, ").")
+    paste("Total filtered data count:", total_count, "; malignant", malignant_count, "and benign", benign_count, "tumors.")
   })
 
   # Download handler
