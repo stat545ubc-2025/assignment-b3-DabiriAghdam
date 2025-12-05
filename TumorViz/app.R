@@ -1,4 +1,5 @@
 library(shiny)
+library(tidyverse)
 library(datateachr)
 library(ggplot2)
 library(DT)
@@ -48,6 +49,7 @@ ui <- fluidPage(
       h3("TumorViz"),
       p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant)."),
       plotOutput("scatterPlot"),
+      downloadButton("downloadPlot", "Download Plot as PNG"),
       dataTableOutput("dataTable"),
     )
   )
@@ -78,11 +80,14 @@ server <- function(input, output) {
   })
 
   # Feature one: Scatter plot of selected variables
-  output$scatterPlot <- renderPlot({
+  plot_obj <- reactive({
     ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis")) +
       geom_point() +
-      labs(title = paste("Scatter plot of", input$x_var, "vs", input$y_var),
+      labs(title = paste("Plot of", input$x_var, "vs", input$y_var),
            x = input$x_var, y = input$y_var)
+  })
+  output$scatterPlot <- renderPlot({
+    plot_obj()
   })
 
   # Feature two: Data table
@@ -106,6 +111,16 @@ server <- function(input, output) {
     },
     content = function(file) {
       write.csv(filtered_data()[, input$selected_columns, drop = FALSE], file, row.names = FALSE)
+    }
+  )
+
+  # Download plot
+  output$downloadPlot <- downloadHandler(
+    filename = function() {
+      paste("plot_", Sys.Date(), ".png", sep = "")
+    },
+    content = function(file) {
+      ggsave(file, plot = plot_obj(), device = "png")
     }
   )
 }
