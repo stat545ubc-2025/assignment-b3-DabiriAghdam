@@ -31,9 +31,12 @@ ui <- fluidPage(
 
     # Feature one: Scatter plot of selected variables
     sidebarPanel(
-      checkboxGroupInput("selected_diagnosis", "Filter by diagnosis:",
-                    choices = c("B" = "B", "M" = "M"),
+      h4("Filter Options"),
+      hr(),
+      checkboxGroupInput("selected_diagnosis", "Diagnosis Type:",
+                    choices = c("Benign (B)" = "B", "Malignant (M)" = "M"),
                     selected = c("B", "M")),
+      h5(strong("Variable Selection:")),
       selectInput("x_var", "First variable:",
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
                   selected = "radius_mean"),
@@ -42,17 +45,22 @@ ui <- fluidPage(
                   selected = "area_mean"),
       uiOutput("sliders"),
       textOutput("summary"),
+      hr(),
       conditionalPanel(
         condition = "input.tabs == 'Plot'",
+        h4("Plot Customization"),
         checkboxInput("x_log", "X-axis log scale", value = FALSE),
         checkboxInput("y_log", "Y-axis log scale", value = FALSE),
         colourInput("color_benign", "Benign (B) color:", value = "#00BCD4"),
+        sliderInput("alpha_benign", "Benign (B) transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
         colourInput("color_malignant", "Malignant (M) color:", value = "#F8766D"),
+        sliderInput("alpha_malignant", "Malignant transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
         checkboxInput("minimal_theme", "Minimal theme", value = TRUE),
         downloadButton("downloadPlot", "Download Plot as PNG")
       ),
       conditionalPanel(
         condition = "input.tabs == 'Table'",
+        h4("Table Options"),
         checkboxGroupInput("selected_columns", "Columns to display:",
                            choices = c("ID", "diagnosis", "radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio", "texture_mean_category"),
                            selected = c("ID", "diagnosis", "area_mean", "texture_mean_category")),
@@ -62,6 +70,11 @@ ui <- fluidPage(
     
    
     mainPanel(
+      # Header image
+      div(style = "text-align: center; margin-bottom: 0px;",
+          img(src = "tumorviz_header.jpeg", width = "99%", style = "max-width: 800px; border-radius: 5px;")
+      ),
+
       h3("TumorViz"),
       p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant). Use the sidebar to filter by diagnosis type, select which variables to plot on each axis, apply log transformations if needed, adjust value ranges to focus on specific regions of interest, and customize point colors. The Plot tab displays your customized scatter plot, while the Table tab shows the filtered dataset based on your current selections, along with summary statistics. You can also download the filtered data as a PNG/CSV file."),
       tabsetPanel(id = "tabs",
@@ -105,7 +118,7 @@ server <- function(input, output) {
   plot_obj <- reactive({
     x_label <- if (input$x_log) paste("log10(", input$x_var, ")") else input$x_var
     y_label <- if (input$y_log) paste("log10(", input$y_var, ")") else input$y_var
-    p <- ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis")) +
+    p <- ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis", alpha = "diagnosis")) +
       geom_point() +
       labs(title = paste("Plot of", input$x_var, "vs", input$y_var),
            x = x_label, y = y_label)
@@ -113,6 +126,7 @@ server <- function(input, output) {
     if (input$y_log) p <- p + scale_y_log10()
     p <- p + scale_color_manual(values = c("B" = if(is.null(input$color_benign)) "#00BCD4" else input$color_benign,
                                            "M" = if(is.null(input$color_malignant)) "#F8766D" else input$color_malignant))
+    p <- p + scale_alpha_manual(values = c("B" = input$alpha_benign, "M" = input$alpha_malignant))
     if (input$minimal_theme) p <- p + theme_minimal()
     p
   })
