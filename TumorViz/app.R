@@ -22,6 +22,9 @@ cancer_data <- cancer_sample %>%
 
 # Define UI for application
 ui <- fluidPage(
+
+    # Include custom CSS
+  includeCSS("www/styles.css"),
   
   # Application title
   titlePanel("TumorViz: Cancer Tumor Explorer"),
@@ -32,7 +35,6 @@ ui <- fluidPage(
     # Feature one: Scatter plot of selected variables
     sidebarPanel(
       h4("Filter Options"),
-      hr(),
       checkboxGroupInput("selected_diagnosis", "Diagnosis Type:",
                     choices = c("Benign (B)" = "B", "Malignant (M)" = "M"),
                     selected = c("B", "M")),
@@ -47,30 +49,31 @@ ui <- fluidPage(
       uiOutput("sliders"),
       textOutput("summary"),
       actionButton("reset_filters", "Reset Filters", style = "padding: 4px 8px; font-size: 12px;"),
-      hr(),
       conditionalPanel(
         condition = "input.tabs == 'Plot'",
         h4("Plot Customization"),
-        actionButton("reset_plot", "Reset Plot Customizations", style = "padding: 4px 8px; font-size: 12px;"),
+        actionButton("reset_plot", "Reset Customizations", style = "padding: 4px 8px; font-size: 12px;"),
         checkboxInput("x_log", "X-axis log scale", value = FALSE),
         checkboxInput("y_log", "Y-axis log scale", value = FALSE),
-        colourInput("color_benign", "Benign (B) color:", value = "#00BCD4"),
-        sliderInput("alpha_benign", "Benign (B) transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
-        sliderInput("size_benign", "Benign (B) point size:", min = 1, max = 10, value = 1, step = 0.5),
-        colourInput("color_malignant", "Malignant (M) color:", value = "#F8766D"),
-        sliderInput("alpha_malignant", "Malignant (M) transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
-        sliderInput("size_malignant", "Malignant (M) point size:", min = 1, max = 10, value = 1, step = 0.5),
+        h5(strong("Benign (B):")),
+        colourInput("color_benign", "Color:", value = "#00BCD4"),
+        sliderInput("alpha_benign", "Transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
+        sliderInput("size_benign", "Point size:", min = 1, max = 10, value = 1, step = 0.5),
+        h5(strong("Malignant (M):")),
+        colourInput("color_malignant", "Color:", value = "#F8766D"),
+        sliderInput("alpha_malignant", "Transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
+        sliderInput("size_malignant", "Point size:", min = 1, max = 10, value = 1, step = 0.5),
         checkboxInput("minimal_theme", "Minimal theme", value = TRUE),
-        downloadButton("downloadPlot", "Download Plot as PNG")
+        downloadButton("downloadPlot", "Download Plot (PNG)")
       ),
       conditionalPanel(
         condition = "input.tabs == 'Table'",
         h4("Table Options"),
-        actionButton("reset_table", "Reset Table Options", style = "padding: 4px 8px; font-size: 12px;"),
+        actionButton("reset_table", "Reset Options", style = "padding: 4px 8px; font-size: 12px;"),
         checkboxGroupInput("selected_columns", "Columns to display:",
                            choices = c("ID", "diagnosis", "radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio", "texture_mean_category"),
                            selected = c("ID", "diagnosis", "area_mean", "texture_mean_category")),
-        downloadButton("downloadData", "Download Filtered Data as CSV")
+        downloadButton("downloadData", "Download Filtered Data (CSV)")
       )
     ),
     

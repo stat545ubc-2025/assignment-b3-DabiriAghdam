@@ -1,0 +1,228 @@
+/* Global Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+}
+
+/* Title Panel */
+.container-fluid h2 {
+  color: #2c3e50;
+  font-weight: 600;
+  padding: 20px 0 10px 0;
+  border-bottom: 3px solid #3498db;
+  margin-bottom: 20px;
+}
+
+/* Sidebar Styling */
+.well {
+  background-color: #ffffff;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 20px;
+}
+
+.well h4 {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 8px;
+}
+
+/* Main Panel */
+.col-sm-8 {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.col-sm-8 h3 {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.col-sm-8 p {
+  color: #555;
+  line-height: 1.7;
+  font-size: 14px;
+  text-align: justify;
+}
+
+/* Tabs Styling */
+.nav-tabs {
+  border-bottom: 2px solid #3498db;
+  margin-bottom: 20px;
+}
+
+.nav-tabs > li > a {
+  color: #555;
+  font-weight: 500;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs > li > a:hover {
+  background-color: #ecf0f1;
+  border-color: #ecf0f1;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  color: #fff;
+  background-color: #3498db;
+  border: 1px solid #3498db;
+  font-weight: 600;
+}
+
+/* Input Controls */
+.form-control,
+.selectize-input {
+  border: 1px solid #d1d8e0;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.selectize-input.focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+}
+
+/* Checkboxes and Radio Buttons */
+.checkbox label {
+  color: #555;
+  font-weight: 400;
+  padding-left: 5px;
+}
+
+/* Buttons */
+.btn-default {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-default:hover {
+  background-color: #2980b9;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.btn-default:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Download Buttons */
+#downloadPlot,
+#downloadData {
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+/* Sliders */
+.irs {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.irs-bar {
+  background: linear-gradient(to bottom, #3498db 0%, #2980b9 100%);
+  border-top: 1px solid #2980b9;
+  border-bottom: 1px solid #2980b9;
+}
+
+.irs-from,
+.irs-to,
+.irs-single {
+  background: #3498db;
+}
+
+.irs-handle {
+  border: 3px solid #3498db;
+  background: #ffffff;
+}
+
+/* Data Table */
+.dataTables_wrapper {
+  padding: 15px 0;
+}
+
+.dataTable thead th {
+  background-color: #3498db;
+  color: white;
+  font-weight: 600;
+  border-bottom: 2px solid #2980b9;
+}
+
+.dataTable tbody tr:hover {
+  background-color: #ecf0f1;
+}
+
+/* Summary Statistics Box */
+#summary {
+  background-color: #ecf0f1;
+  border-left: 4px solid #3498db;
+  padding: 15px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+/* Plot Output */
+#scatterPlot {
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Header Image */
+img {
+  margin-bottom: 15px;
+}
+
+/* Horizontal Rule */
+hr {
+  border-top: 1px solid #e1e8ed;
+  margin: 20px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .col-sm-8 {
+    padding: 15px;
+  }
+  
+  .well {
+    margin-bottom: 20px;
+  }
+}
+
+/* Loading Spinner */
+.shiny-output-error {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+/* Conditional Panel Transitions */
+.shiny-input-container {
+  margin-bottom: 15px;
+}
