@@ -43,6 +43,7 @@ ui <- fluidPage(
       selectInput("y_var", "Second variable:",
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
                   selected = "area_mean"),
+      checkboxInput("show_regression", "Show regression line", value = FALSE),
       uiOutput("sliders"),
       textOutput("summary"),
       actionButton("reset_filters", "Reset Filters", style = "padding: 4px 8px; font-size: 12px;"),
@@ -125,7 +126,7 @@ server <- function(input, output, session) {
     y_label <- if (input$y_log) paste("log10(", input$y_var, ")") else input$y_var
     p <- ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis", alpha = "diagnosis", size = "diagnosis")) +
       geom_point() +
-      labs(title = paste("Plot of", input$x_var, "vs", input$y_var),
+      labs(title = paste(input$x_var, "vs", input$y_var, "by diagnosis"),
            x = x_label, y = y_label)
     if (input$x_log) p <- p + scale_x_log10()
     if (input$y_log) p <- p + scale_y_log10()
@@ -134,10 +135,11 @@ server <- function(input, output, session) {
     p <- p + scale_alpha_manual(values = c("B" = input$alpha_benign, "M" = input$alpha_malignant))
     p <- p + scale_size_manual(values = c("B" = input$size_benign, "M" = input$size_malignant))
     if (input$minimal_theme) p <- p + theme_minimal()
+    if (input$show_regression) p <- p + geom_smooth(method = "lm", se = FALSE, linewidth = 1)
     p
   })
   output$scatterPlot <- renderPlot({
-    plot_obj()
+    suppressWarnings(plot_obj()) # Suppress warnings??
   })
 
   # Reset observers
@@ -161,6 +163,7 @@ server <- function(input, output, session) {
     updateSliderInput(session, "size_benign", value = 3)
     updateSliderInput(session, "size_malignant", value = 3)
     updateCheckboxInput(session, "minimal_theme", value = TRUE)
+    updateCheckboxInput(session, "show_regression", value = FALSE)
   })
 
   observeEvent(input$reset_table, {
