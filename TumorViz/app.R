@@ -45,22 +45,27 @@ ui <- fluidPage(
                   selected = "area_mean"),
       uiOutput("sliders"),
       textOutput("summary"),
+      actionButton("reset_filters", "Reset Filters", style = "padding: 4px 8px; font-size: 12px;"),
       hr(),
       conditionalPanel(
         condition = "input.tabs == 'Plot'",
         h4("Plot Customization"),
+        actionButton("reset_plot", "Reset Plot Customizations", style = "padding: 4px 8px; font-size: 12px;"),
         checkboxInput("x_log", "X-axis log scale", value = FALSE),
         checkboxInput("y_log", "Y-axis log scale", value = FALSE),
         colourInput("color_benign", "Benign (B) color:", value = "#00BCD4"),
         sliderInput("alpha_benign", "Benign (B) transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
+        sliderInput("size_benign", "Benign (B) point size:", min = 1, max = 10, value = 1, step = 0.5),
         colourInput("color_malignant", "Malignant (M) color:", value = "#F8766D"),
-        sliderInput("alpha_malignant", "Malignant transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
+        sliderInput("alpha_malignant", "Malignant (M) transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
+        sliderInput("size_malignant", "Malignant (M) point size:", min = 1, max = 10, value = 1, step = 0.5),
         checkboxInput("minimal_theme", "Minimal theme", value = TRUE),
         downloadButton("downloadPlot", "Download Plot as PNG")
       ),
       conditionalPanel(
         condition = "input.tabs == 'Table'",
         h4("Table Options"),
+        actionButton("reset_table", "Reset Table Options", style = "padding: 4px 8px; font-size: 12px;"),
         checkboxGroupInput("selected_columns", "Columns to display:",
                            choices = c("ID", "diagnosis", "radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio", "texture_mean_category"),
                            selected = c("ID", "diagnosis", "area_mean", "texture_mean_category")),
@@ -90,7 +95,7 @@ ui <- fluidPage(
 )
 
 # Define server logic
-server <- function(input, output) {
+server <- function(input, output, session) {
 
   # Dynamic sliders for filtering
   output$sliders <- renderUI({
@@ -118,7 +123,7 @@ server <- function(input, output) {
   plot_obj <- reactive({
     x_label <- if (input$x_log) paste("log10(", input$x_var, ")") else input$x_var
     y_label <- if (input$y_log) paste("log10(", input$y_var, ")") else input$y_var
-    p <- ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis", alpha = "diagnosis")) +
+    p <- ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis", alpha = "diagnosis", size = "diagnosis")) +
       geom_point() +
       labs(title = paste("Plot of", input$x_var, "vs", input$y_var),
            x = x_label, y = y_label)
@@ -127,11 +132,39 @@ server <- function(input, output) {
     p <- p + scale_color_manual(values = c("B" = if(is.null(input$color_benign)) "#00BCD4" else input$color_benign,
                                            "M" = if(is.null(input$color_malignant)) "#F8766D" else input$color_malignant))
     p <- p + scale_alpha_manual(values = c("B" = input$alpha_benign, "M" = input$alpha_malignant))
+    p <- p + scale_size_manual(values = c("B" = input$size_benign, "M" = input$size_malignant))
     if (input$minimal_theme) p <- p + theme_minimal()
     p
   })
   output$scatterPlot <- renderPlot({
     plot_obj()
+  })
+
+  # Reset observers
+  observeEvent(input$reset_filters, {
+    updateCheckboxGroupInput(session, "selected_diagnosis", selected = c("B", "M"))
+    x_min <- min(cancer_data[[input$x_var]], na.rm = TRUE)
+    x_max <- max(cancer_data[[input$x_var]], na.rm = TRUE)
+    y_min <- min(cancer_data[[input$y_var]], na.rm = TRUE)
+    y_max <- max(cancer_data[[input$y_var]], na.rm = TRUE)
+    updateSliderInput(session, "x_range", value = c(x_min, x_max))
+    updateSliderInput(session, "y_range", value = c(y_min, y_max))
+  })
+
+  observeEvent(input$reset_plot, {
+    updateCheckboxInput(session, "x_log", value = FALSE)
+    updateCheckboxInput(session, "y_log", value = FALSE)
+    updateColourInput(session, "color_benign", value = "#00BCD4")
+    updateColourInput(session, "color_malignant", value = "#F8766D")
+    updateSliderInput(session, "alpha_benign", value = 1)
+    updateSliderInput(session, "alpha_malignant", value = 1)
+    updateSliderInput(session, "size_benign", value = 3)
+    updateSliderInput(session, "size_malignant", value = 3)
+    updateCheckboxInput(session, "minimal_theme", value = TRUE)
+  })
+
+  observeEvent(input$reset_table, {
+    updateCheckboxGroupInput(session, "selected_columns", selected = c("ID", "diagnosis", "area_mean", "texture_mean_category"))
   })
 
   # Feature two: Data table
