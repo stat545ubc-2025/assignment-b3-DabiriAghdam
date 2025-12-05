@@ -35,7 +35,10 @@ ui <- fluidPage(
       selectInput("y_var", "Second variable:",
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
                   selected = "texture_mean"),
-      uiOutput("sliders")
+      uiOutput("sliders"),
+      checkboxGroupInput("selected_columns", "Columns to display:",
+                         choices = c("ID", "diagnosis", "radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio", "texture_mean_category"),
+                         selected = c("ID", "diagnosis", "radius_mean", "texture_mean_category"))
     ),
     
    
@@ -83,10 +86,10 @@ server <- function(input, output) {
 
   # Feature two: Data table
   output$dataTable <- renderDataTable({
-    filtered_data()
+    datatable(filtered_data()[, input$selected_columns, drop = FALSE])
   })
 
-  # Summary statistics
+  # Feature three: Summary statistics
   output$summary <- renderText({
     data <- filtered_data()
     malignant_count <- sum(data$diagnosis == "M")
