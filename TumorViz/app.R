@@ -56,7 +56,7 @@ ui <- fluidPage(
    
     mainPanel(
       h3("TumorViz"),
-      p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant)."),
+      p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant). Use the sidebar to filter by diagnosis type, select which variables to plot on each axis, apply log transformations if needed, adjust value ranges to focus on specific regions of interest, and customize point colors. The Plot tab displays your customized scatter plot, while the Data Table tab shows the filtered dataset based on your current selections, along with summary statistics. You can also download the filtered data as a PNG/CSV file."),
       plotOutput("scatterPlot"),
       downloadButton("downloadPlot", "Download Plot as PNG"),
       dataTableOutput("dataTable"),
