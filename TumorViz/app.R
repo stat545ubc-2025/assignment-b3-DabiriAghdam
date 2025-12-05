@@ -3,6 +3,7 @@ library(tidyverse)
 library(datateachr)
 library(ggplot2)
 library(DT)
+library(colourpicker)
 
 # Create a cleaner dataset (adapted from mini-data-analysis repository)
 cancer_data <- cancer_sample %>%
@@ -30,17 +31,25 @@ ui <- fluidPage(
 
     # Feature one: Scatter plot of selected variables
     sidebarPanel(
+      checkboxGroupInput("selected_diagnosis", "Filter by diagnosis:",
+                    choices = c("B" = "B", "M" = "M"),
+                    selected = c("B", "M")),
       selectInput("x_var", "First variable:",
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
                   selected = "radius_mean"),
       selectInput("y_var", "Second variable:",
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
-                  selected = "texture_mean"),
+                  selected = "area_mean"),
       uiOutput("sliders"),
+      checkboxInput("x_log", "Log scale for X-axis", value = FALSE),
+      checkboxInput("y_log", "Log scale for Y-axis", value = FALSE),
+      colourInput("color_benign", "Benign (B) color:", value = "#00BCD4"),
+      colourInput("color_malignant", "Malignant (M) color:", value = "#F8766D"),
+      checkboxInput("minimal_theme", "Use minimal theme", value = TRUE),
       textOutput("summary"),
       checkboxGroupInput("selected_columns", "Columns to display:",
                          choices = c("ID", "diagnosis", "radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio", "texture_mean_category"),
-                         selected = c("ID", "diagnosis", "radius_mean", "texture_mean_category")),
+                         selected = c("ID", "diagnosis", "area_mean", "texture_mean_category")),
       downloadButton("downloadData", "Download Filtered Data as CSV")
     ),
     
@@ -73,18 +82,27 @@ server <- function(input, output) {
 
   # Filtered data reactive
   filtered_data <- reactive({
-    req(input$x_range, input$y_range)
+    req(input$x_range, input$y_range, input$selected_diagnosis)
     cancer_data %>%
       filter(!!sym(input$x_var) >= input$x_range[1] & !!sym(input$x_var) <= input$x_range[2] &
-             !!sym(input$y_var) >= input$y_range[1] & !!sym(input$y_var) <= input$y_range[2])
+             !!sym(input$y_var) >= input$y_range[1] & !!sym(input$y_var) <= input$y_range[2] &
+             diagnosis %in% input$selected_diagnosis)
   })
 
   # Feature one: Scatter plot of selected variables
   plot_obj <- reactive({
-    ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis")) +
+    x_label <- if (input$x_log) paste("log10(", input$x_var, ")") else input$x_var
+    y_label <- if (input$y_log) paste("log10(", input$y_var, ")") else input$y_var
+    p <- ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis")) +
       geom_point() +
       labs(title = paste("Plot of", input$x_var, "vs", input$y_var),
-           x = input$x_var, y = input$y_var)
+           x = x_label, y = y_label)
+    if (input$x_log) p <- p + scale_x_log10()
+    if (input$y_log) p <- p + scale_y_log10()
+    p <- p + scale_color_manual(values = c("B" = if(is.null(input$color_benign)) "#00BCD4" else input$color_benign,
+                                           "M" = if(is.null(input$color_malignant)) "#F8766D" else input$color_malignant))
+    if (input$minimal_theme) p <- p + theme_minimal()
+    p
   })
   output$scatterPlot <- renderPlot({
     plot_obj()
