@@ -36,9 +36,11 @@ ui <- fluidPage(
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
                   selected = "texture_mean"),
       uiOutput("sliders"),
+      textOutput("summary"),
       checkboxGroupInput("selected_columns", "Columns to display:",
                          choices = c("ID", "diagnosis", "radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio", "texture_mean_category"),
-                         selected = c("ID", "diagnosis", "radius_mean", "texture_mean_category"))
+                         selected = c("ID", "diagnosis", "radius_mean", "texture_mean_category")),
+      downloadButton("downloadData", "Download Filtered Data as CSV")
     ),
     
    
@@ -47,7 +49,6 @@ ui <- fluidPage(
       p("TumorViz is an interactive visualization tool for exploring a cleaned subset of Wisconsin Breast Cancer dataset (available in `datateachr` package). The app allows you to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant)."),
       plotOutput("scatterPlot"),
       dataTableOutput("dataTable"),
-      textOutput("summary")
     )
   )
 )
@@ -95,8 +96,18 @@ server <- function(input, output) {
     malignant_count <- sum(data$diagnosis == "M")
     benign_count <- sum(data$diagnosis == "B")
     total_count <- nrow(data)
-    paste("We found", malignant_count, "malignant and", benign_count, "benign tumors ( total", total_count, ")")
+    paste("We found", malignant_count, "malignant and", benign_count, "benign tumors ( total", total_count, ").")
   })
+
+  # Download handler
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("filtered_tumor_data_", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(filtered_data()[, input$selected_columns, drop = FALSE], file, row.names = FALSE)
+    }
+  )
 }
 
 # Run the application 
