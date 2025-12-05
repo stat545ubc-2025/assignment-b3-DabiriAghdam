@@ -34,7 +34,8 @@ ui <- fluidPage(
                   selected = "radius_mean"),
       selectInput("y_var", "Second variable:",
                   choices = c("radius_mean", "texture_mean", "area_mean", "perimeter_mean", "smoothness_mean", "compactness_mean", "area_to_radius_ratio"),
-                  selected = "texture_mean")
+                  selected = "texture_mean"),
+      uiOutput("sliders")
     ),
     
    
@@ -50,9 +51,30 @@ ui <- fluidPage(
 # Define server logic
 server <- function(input, output) {
 
+  # Dynamic sliders for filtering
+  output$sliders <- renderUI({
+    req(input$x_var, input$y_var)
+    x_min <- min(cancer_data[[input$x_var]], na.rm = TRUE)
+    x_max <- max(cancer_data[[input$x_var]], na.rm = TRUE)
+    y_min <- min(cancer_data[[input$y_var]], na.rm = TRUE)
+    y_max <- max(cancer_data[[input$y_var]], na.rm = TRUE)
+    tagList(
+      sliderInput("x_range", paste("Range for", input$x_var), min = x_min, max = x_max, value = c(x_min, x_max), step = (x_max - x_min)/100),
+      sliderInput("y_range", paste("Range for", input$y_var), min = y_min, max = y_max, value = c(y_min, y_max), step = (y_max - y_min)/100)
+    )
+  })
+
+  # Filtered data reactive
+  filtered_data <- reactive({
+    req(input$x_range, input$y_range)
+    cancer_data %>%
+      filter(!!sym(input$x_var) >= input$x_range[1] & !!sym(input$x_var) <= input$x_range[2] &
+             !!sym(input$y_var) >= input$y_range[1] & !!sym(input$y_var) <= input$y_range[2])
+  })
+
   # Feature one: Scatter plot of selected variables
   output$scatterPlot <- renderPlot({
-    ggplot(cancer_data, aes_string(x = input$x_var, y = input$y_var, color = "diagnosis")) +
+    ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis")) +
       geom_point() +
       labs(title = paste("Scatter plot of", input$x_var, "vs", input$y_var),
            x = input$x_var, y = input$y_var)
@@ -60,7 +82,7 @@ server <- function(input, output) {
 
   # Feature two: Data table
   output$dataTable <- renderDataTable({
-    cancer_data
+    filtered_data()
   })
 }
 
