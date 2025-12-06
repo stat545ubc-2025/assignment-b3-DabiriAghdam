@@ -32,6 +32,9 @@ Below is a list of prompts I provided to the Gen AI chatbot (Grok) while creatin
 - how to swap the colors of benign and malignant classes here in this plot: [...]
 - I was familiar with css files in high school. Can you remind me of it structure?
 
+### Image Generation
+-  I think I can include an image to make our app more visually appealing. can you generate an image headr for this code: [...]
+
 ## Reflection on Gen AI Use
 
 Using Gen AI changed how I worked on this assignment. It let me use a so-called "vibe coding" style, where I focused on the overall design and user experience while the AI handled most of the technical coding details. This helped me prototype ideas quickly and build a polished app much faster than with traditional coding based on documentation.
