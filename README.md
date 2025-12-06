@@ -70,7 +70,7 @@ Ensure these packages are installed before running the app (shiny::runApp()).
 - `app.R`: Main application file containing UI and server logic
 - `www/`: Directory containing static assets (Custom CSS styling for the app and header image)
 - `README.md`: This file
-- `GenAI_Statement.md`: Documentation of generative AI use and reflection
+- `GenAI_Statement.md`: Statement of generative AI use and reflection on it (as required)
 
 ## Author
 
