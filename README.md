@@ -6,6 +6,10 @@
 
 TumorViz is an interactive R Shiny application for exploring a cleaned subset of Wisconsin Breast Cancer dataset (`cancer_sample` dataset from `datateachr` package). The app enables users to investigate relationships between various tumor characteristics (radius, area, etc.) and diagnosis outcomes (benign or malignant) through a scatter plot and a table view.
 
+<p align="center">
+<img width="70%" alt="image" src="https://github.com/user-attachments/assets/636bcdec-b059-45aa-b925-4682c8102958" />
+</p>
+
 ## Features
 
 This Shiny app includes the following three main features:
