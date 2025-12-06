@@ -5,7 +5,7 @@ library(ggplot2)
 library(DT)
 library(colourpicker)
 
-# Create a cleaner dataset (adapted from mini-data-analysis repository)
+# Create a cleaner dataset (adapted from my cdde from my own mini-data-analysis repository)
 cancer_data <- datateachr::cancer_sample %>%
   dplyr::select(ID, diagnosis, radius_mean, texture_mean, area_mean, perimeter_mean, smoothness_mean, compactness_mean) %>%
   dplyr::mutate(area_to_radius_ratio = area_mean / radius_mean) %>%
@@ -58,11 +58,11 @@ ui <- fluidPage(
         h5(strong("Benign (B):")),
         colourInput("color_benign", "Color:", value = "#00BCD4"),
         sliderInput("alpha_benign", "Transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
-        sliderInput("size_benign", "Point size:", min = 1, max = 10, value = 1, step = 0.5),
+        sliderInput("size_benign", "Point size:", min = 1, max = 5, value = 1, step = 0.5),
         h5(strong("Malignant (M):")),
         colourInput("color_malignant", "Color:", value = "#F8766D"),
         sliderInput("alpha_malignant", "Transparency:", min = 0.1, max = 1, value = 1, step = 0.1),
-        sliderInput("size_malignant", "Point size:", min = 1, max = 10, value = 1, step = 0.5),
+        sliderInput("size_malignant", "Point size:", min = 1, max = 5, value = 1, step = 0.5),
         checkboxInput("minimal_theme", "Minimal theme", value = TRUE),
         downloadButton("downloadPlot", "Download Plot (PNG)")
       ),
@@ -142,7 +142,8 @@ server <- function(input, output, session) {
     p
   })
   output$scatterPlot <- renderPlot({
-    suppressWarnings(plot_obj()) # Suppress warnings??
+    # suppressWarnings(plot_obj()) # Suppress warnings! Why??
+    plot_obj()
   })
 
   # Reset observers
@@ -178,7 +179,6 @@ server <- function(input, output, session) {
     DT::datatable(filtered_data()[, input$selected_columns, drop = FALSE])
   })
 
-  # Feature three: Summary statistics
   output$summary <- renderText({
     data <- filtered_data()
     malignant_count <- sum(data$diagnosis == "M")
