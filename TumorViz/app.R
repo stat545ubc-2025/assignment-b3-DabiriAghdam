@@ -6,19 +6,19 @@ library(DT)
 library(colourpicker)
 
 # Create a cleaner dataset (adapted from mini-data-analysis repository)
-cancer_data <- cancer_sample %>%
-  select(ID, diagnosis, radius_mean, texture_mean, area_mean, perimeter_mean, smoothness_mean, compactness_mean) %>%
-  mutate(area_to_radius_ratio = area_mean / radius_mean) %>%
-  mutate(texture_mean_category = case_when(
-    texture_mean < quantile(texture_mean, 1/3) ~ "Low",
-    texture_mean < quantile(texture_mean, 2/3) ~ "Medium",
+cancer_data <- datateachr::cancer_sample %>%
+  dplyr::select(ID, diagnosis, radius_mean, texture_mean, area_mean, perimeter_mean, smoothness_mean, compactness_mean) %>%
+  dplyr::mutate(area_to_radius_ratio = area_mean / radius_mean) %>%
+  dplyr::mutate(texture_mean_category = dplyr::case_when(
+    texture_mean < stats::quantile(texture_mean, 1/3) ~ "Low",
+    texture_mean < stats::quantile(texture_mean, 2/3) ~ "Medium",
     TRUE ~ "High"
   ) %>% factor(levels = c("Low", "Medium", "High"), ordered = TRUE)) %>%
-  mutate(diagnosis = factor(diagnosis, 
+  dplyr::mutate(diagnosis = factor(diagnosis, 
                             levels = c("B", "M"),
                             labels = c("B", "M"))) %>%
-  filter(!if_any(everything(), is.na)) %>%
-  distinct()
+  dplyr::filter(!dplyr::if_any(dplyr::everything(), is.na)) %>%
+  dplyr::distinct()
 
 # Define UI for application
 ui <- fluidPage(
@@ -118,7 +118,7 @@ server <- function(input, output, session) {
   filtered_data <- reactive({
     req(input$x_range, input$y_range, input$selected_diagnosis)
     cancer_data %>%
-      filter(!!sym(input$x_var) >= input$x_range[1] & !!sym(input$x_var) <= input$x_range[2] &
+      dplyr::filter(!!sym(input$x_var) >= input$x_range[1] & !!sym(input$x_var) <= input$x_range[2] &
              !!sym(input$y_var) >= input$y_range[1] & !!sym(input$y_var) <= input$y_range[2] &
              diagnosis %in% input$selected_diagnosis)
   })
@@ -127,18 +127,18 @@ server <- function(input, output, session) {
   plot_obj <- reactive({
     x_label <- if (input$x_log) paste("log10(", input$x_var, ")") else input$x_var
     y_label <- if (input$y_log) paste("log10(", input$y_var, ")") else input$y_var
-    p <- ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var, color = "diagnosis", alpha = "diagnosis", size = "diagnosis")) +
-      geom_point() +
-      labs(title = paste(input$x_var, "vs", input$y_var, "by diagnosis"),
+    p <- ggplot2::ggplot(filtered_data(), ggplot2::aes_string(x = input$x_var, y = input$y_var, color = "diagnosis", alpha = "diagnosis", size = "diagnosis")) +
+      ggplot2::geom_point() +
+      ggplot2::labs(title = paste(input$x_var, "vs", input$y_var, "by diagnosis"),
            x = x_label, y = y_label)
-    if (input$x_log) p <- p + scale_x_log10()
-    if (input$y_log) p <- p + scale_y_log10()
-    p <- p + scale_color_manual(values = c("B" = if(is.null(input$color_benign)) "#00BCD4" else input$color_benign,
+    if (input$x_log) p <- p + ggplot2::scale_x_log10()
+    if (input$y_log) p <- p + ggplot2::scale_y_log10()
+    p <- p + ggplot2::scale_color_manual(values = c("B" = if(is.null(input$color_benign)) "#00BCD4" else input$color_benign,
                                            "M" = if(is.null(input$color_malignant)) "#F8766D" else input$color_malignant))
-    p <- p + scale_alpha_manual(values = c("B" = input$alpha_benign, "M" = input$alpha_malignant))
-    p <- p + scale_size_manual(values = c("B" = input$size_benign, "M" = input$size_malignant))
-    if (input$minimal_theme) p <- p + theme_minimal()
-    if (input$show_regression) p <- p + geom_smooth(method = "lm", se = FALSE, linewidth = 1)
+    p <- p + ggplot2::scale_alpha_manual(values = c("B" = input$alpha_benign, "M" = input$alpha_malignant))
+    p <- p + ggplot2::scale_size_manual(values = c("B" = input$size_benign, "M" = input$size_malignant))
+    if (input$minimal_theme) p <- p + ggplot2::theme_minimal()
+    if (input$show_regression) p <- p + ggplot2::geom_smooth(method = "lm", se = FALSE, linewidth = 1)
     p
   })
   output$scatterPlot <- renderPlot({
@@ -163,8 +163,8 @@ server <- function(input, output, session) {
     updateColourInput(session, "color_malignant", value = "#F8766D")
     updateSliderInput(session, "alpha_benign", value = 1)
     updateSliderInput(session, "alpha_malignant", value = 1)
-    updateSliderInput(session, "size_benign", value = 3)
-    updateSliderInput(session, "size_malignant", value = 3)
+    updateSliderInput(session, "size_benign", value = 1)
+    updateSliderInput(session, "size_malignant", value = 1)
     updateCheckboxInput(session, "minimal_theme", value = TRUE)
     updateCheckboxInput(session, "show_regression", value = FALSE)
   })
@@ -174,8 +174,8 @@ server <- function(input, output, session) {
   })
 
   # Feature two: Data table
-  output$dataTable <- renderDataTable({
-    datatable(filtered_data()[, input$selected_columns, drop = FALSE])
+  output$dataTable <- DT::renderDataTable({
+    DT::datatable(filtered_data()[, input$selected_columns, drop = FALSE])
   })
 
   # Feature three: Summary statistics
@@ -203,7 +203,7 @@ server <- function(input, output, session) {
       paste("plot_", Sys.Date(), ".png", sep = "")
     },
     content = function(file) {
-      ggsave(file, plot = plot_obj(), device = "png")
+      ggplot2::ggsave(file, plot = plot_obj(), device = "png")
     }
   )
 }
